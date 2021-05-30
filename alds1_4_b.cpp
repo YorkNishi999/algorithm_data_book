@@ -14,7 +14,6 @@ int binarySearch(int key) {
     if (key > A[mid]) left = mid +1;
     else if (key < A[mid]) right = mid;
   }
-  
   return 0;
 }
 
