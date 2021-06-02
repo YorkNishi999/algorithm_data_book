@@ -1,50 +1,74 @@
-#include <cstdio>
-#define MAX 500000
-#define SENTINEL 2e9
+#include<iostream>
+using namespace std;
 
-int L[MAX/2+2],R[MAX/2+2];
-int cnt;
+#define MAX 100005
+#define NIL -1
 
-void merge(int A[],int n,int left,int mid,int right){
-	int n1=mid-left;
-	int n2=right-mid;
-	for(int i=0;i<n1;i++){
-		L[i]=A[left+i];
-	}
-	for(int i=0;i<n2;i++){
-		R[i]=A[mid+i];
-	}
-	L[n1]=R[n2]=SENTINEL;
-	int i=0,j=0;
-	for(int k=left;k<right;k++){
-		cnt++;
-		if(L[i]<=R[j]){
-			A[k]=L[i++];
-		}else{
-			A[k]=R[j++];
-		}
-	}
+struct Node{
+    int p, l, r;
+};
+
+Node T[MAX];
+int n, D[MAX];
+
+void print(int u){
+    cout << "node " << u << ": ";
+    cout << "parent = " << T[u].p << ", ";
+    cout << "depth = " << D[u] << ", ";
+
+    if(T[u].p == NIL)       cout << "root";
+    else if(T[u].l == NIL)  cout << "leaf";
+    else                    cout << "internal node";
+    cout << ", ";
+
+    cout << "[";
+
+    int c;
+    for(int i = 0, c = T[u].l; c != NIL; i++, c = T[c].r){
+        if(i) cout << ", ";
+        cout << c;
+    }
+    cout << "]" << endl;
 }
 
-void mergeSort(int A[],int n,int left,int right){
-	if(left+1<right){
-		int mid=(left+right)/2;
-		mergeSort(A,n,left,mid);
-		mergeSort(A,n,mid,right);
-		merge(A,n,left,mid,right);
-	}
+int rec(int u, int p){
+    D[u] = p;
+    if(T[u].l != NIL)   rec(T[u].l, p+1);
+    if(T[u].r != NIL)   rec(T[u].r, p);
 }
 
-int main(void){
-	int A[MAX],n;
-	scanf("%d",&n);
-	for(int i=0;i<n;i++){
-		scanf("%d",&A[i]);
-	}
-	mergeSort(A,n,0,n);
-	for(int i=0;i<n;i++){
-		printf("%d%c",A[i],i==n-1?'\n':' ');
-	}
-	printf("%d\n",cnt);
-	return 0;
+int main(){
+    int n;
+    cin >> n;
+    for(int i = 0; i < n; i++){
+        T[i].p = T[i].l = T[i].r = NIL;
+    }
+
+    for(int i = 0; i < n; i++){
+        int v, d, c, l;
+        cin >> v >> d;
+        for(int j = 0; j < d; j++){
+            cin >> c;
+            if(j == 0){
+                T[v].l = c;
+            }else{
+                T[l].r = c;
+            }
+            l = c;
+            T[c].p = v;
+        }
+    }
+
+    int r;
+    for(int i = 0; i < n; i++){
+        if(T[i].p == NIL)   r = i;
+    }
+
+    rec(r, 0);
+
+    for(int i = 0; i < n; i++){
+        print(i);
+    }
+
+    return 0;
 }
