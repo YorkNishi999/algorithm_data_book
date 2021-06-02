@@ -1,95 +1,50 @@
-#include<cstdio>
-#include<cstdlib>
-#include<cstring>
+#include <cstdio>
+#define MAX 500000
+#define SENTINEL 2e9
 
-using namespace std;
+int L[MAX/2+2],R[MAX/2+2];
+int cnt;
 
-struct Node {
-    int key;
-    Node *next, *prev;
-};
-
-Node *nil;
-
-void init(){
-    nil = (Node *)malloc(sizeof(Node));
-    nil->prev = nil;
-    nil->next = nil;
+void merge(int A[],int n,int left,int mid,int right){
+	int n1=mid-left;
+	int n2=right-mid;
+	for(int i=0;i<n1;i++){
+		L[i]=A[left+i];
+	}
+	for(int i=0;i<n2;i++){
+		R[i]=A[mid+i];
+	}
+	L[n1]=R[n2]=SENTINEL;
+	int i=0,j=0;
+	for(int k=left;k<right;k++){
+		cnt++;
+		if(L[i]<=R[j]){
+			A[k]=L[i++];
+		}else{
+			A[k]=R[j++];
+		}
+	}
 }
 
-Node* listSearch(int key){
-    Node* cur = nil->next;
-    while(cur != nil && cur->key != key){
-        cur = cur->next;
-    }
-    return cur;
+void mergeSort(int A[],int n,int left,int right){
+	if(left+1<right){
+		int mid=(left+right)/2;
+		mergeSort(A,n,left,mid);
+		mergeSort(A,n,mid,right);
+		merge(A,n,left,mid,right);
+	}
 }
 
-void printList(){
-    Node* cur = nil->next;
-    int isFirst = 0;
-    while(1){
-        if(cur == nil) break;
-        if(isFirst++ > 0)   printf(" ");
-        printf("%d" , cur->key);
-        cur = cur->next;
-    }
-    printf("\n");
-}
-
-void insert(int key){
-    Node* x = (Node *)malloc(sizeof(Node));
-    x->key = key;
-    
-    x->next = nil->next;
-    nil->next->prev = x;
-    nil->next = x;
-    x->prev = nil;
-}
-
-void deleteNode(Node* del){
-    if(del == nil) return;
-    del->prev->next = del->next;
-    del->next->prev = del->prev;
-    free(del);
-}
-
-void deleteFirst(){
-    deleteNode(nil->next);
-}
-
-void deleteLast(){
-    deleteNode(nil->prev);
-}
-
-void deleteKey(int key){
-    deleteNode(listSearch(key));
-}
-
-int main(){
-    char op[20];
-    int key, n, i;
-
-    scanf("%d", &n);
-    init();
-    for(i = 0; i < n; i++){
-        scanf("%s%d" , op , &key);
-        if(op[0] == 'i'){
-            insert(key);
-        }else if(op[0] == 'd'){
-            if(strlen(op) > 6){
-                if(op[6] == 'F'){
-                    deleteFirst();
-                }else if(op[6] == 'L'){
-                    deleteLast();
-                }
-            }else{
-                deleteKey(key);
-            }
-        }
-    }
-
-    printList();
-
-    return 0;
+int main(void){
+	int A[MAX],n;
+	scanf("%d",&n);
+	for(int i=0;i<n;i++){
+		scanf("%d",&A[i]);
+	}
+	mergeSort(A,n,0,n);
+	for(int i=0;i<n;i++){
+		printf("%d%c",A[i],i==n-1?'\n':' ');
+	}
+	printf("%d\n",cnt);
+	return 0;
 }
